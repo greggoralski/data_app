@@ -1,21 +1,29 @@
 import streamlit as st
-import pandas as pd 
-import plotly_express as px 
-import folium 
+import pandas as pd
+import plotly_express as px
+import folium
 from folium.plugins import HeatMap
 import seaborn as sns
+#Import packages
+import numpy as np # linear algebra
+import pandas as pd # data processing, CSV file I/O (e.g. pd.read_csv)
+import bq_helper
+from bq_helper import BigQueryHelper
 
 # Get the data from url and request it as json file
 @st.cache(persist=True, suppress_st_warning=True)
 def load_data():
-    df = pd.read_csv(
-        "https://query.data.world/s/6joi7hjgjmwifhl2clpldwm36xmvmx")
-    df["REPORTDATETIME"] = pd.to_datetime(
-        df["REPORTDATETIME"], infer_datetime_format=True)
-    df["Day"] = df["REPORTDATETIME"].dt.day
-    df["Month"] = df["REPORTDATETIME"].dt.month
-    df["Hour"] = df["REPORTDATETIME"].dt.hour
-    return df
+    #Read the datset from BigQuery file
+    dataset = bq_helper.BigQueryHelper(active_project="bigquery-public-data",
+                                      dataset_name="usa_names")
+    # df = pd.read_csv(
+    #     "https://query.data.world/s/6joi7hjgjmwifhl2clpldwm36xmvmx")
+    # df["REPORTDATETIME"] = pd.to_datetime(
+    #     df["REPORTDATETIME"], infer_datetime_format=True)
+    # df["Day"] = df["REPORTDATETIME"].dt.day
+    # df["Month"] = df["REPORTDATETIME"].dt.month
+    # df["Hour"] = df["REPORTDATETIME"].dt.hour
+    return dataset
 
 @st.cache(persist=True, suppress_st_warning=True)
 def display_map(df):
@@ -45,16 +53,16 @@ def main():
     
     st.plotly_chart(display_map(df_data))
 
-    dataviz_choice = st.sidebar.selectbox("Choose Data Visualization",
-                                          ["None", "Heatmap", "Countplot"])
-    if dataviz_choice == "Countplot":
-        st.subheader("Countplot")
-        sns.countplot("METHOD", data=df_data)
-        st.pyplot()
+    # dataviz_choice = st.sidebar.selectbox("Choose Data Visualization",
+    #                                       ["None", "Heatmap", "Countplot"])
+    # if dataviz_choice == "Countplot":
+    #     st.subheader("Countplot")
+    #     sns.countplot("METHOD", data=df_data)
+    #     st.pyplot()
 
-    elif dataviz_choice == "Heatmap":
-        st.subheader("Heat Map")
-        heat_map(df_data)
+    # elif dataviz_choice == "Heatmap":
+    #     st.subheader("Heat Map")
+    #     heat_map(df_data)
 
 if __name__ == "__main__":
     main()
